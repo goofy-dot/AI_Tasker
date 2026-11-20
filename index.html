@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101116">
+  <title>BrowserAI — Friends for a Cause Foundation</title>
+  <style>
+    :root {
+      --bg: #101116;
+      --panel: #181a23;
+      --panel-2: #20222d;
+      --border: #2c2e3a;
+      --text: #f3f3f7;
+      --muted: #9295a5;
+      --accent: #8273ff;
+      --accent-2: #6354db;
+      --green: #45d49a;
+      --danger: #ff7186;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.5 Arial, sans-serif;
+    }
+
+    button, input, textarea { font: inherit; }
+
+    button, a { -webkit-tap-highlight-color: transparent; }
+
+    button { cursor: pointer; }
+
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      clip-path: inset(50%);
+    }
+
+    .app { display: grid; grid-template-columns: 245px minmax(0, 1fr) 300px; height: 100vh; }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding: 22px 15px;
+      border-right: 1px solid var(--border);
+      background: #15161d;
+    }
+
+    .brand {
+      margin: 4px 8px 32px;
+      color: var(--text);
+      font-size: 23px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .brand span { color: var(--accent); }
+
+    .new-chat {
+      margin-bottom: 25px;
+      border: 0;
+      border-radius: 10px;
+      padding: 13px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .new-chat:hover { background: var(--accent-2); }
+
+    .sidebar-label {
+      margin: 15px 9px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .nav-item {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      gap: 12px;
+      margin: 1px 0;
+      border: 0;
+      border-radius: 9px;
+      padding: 12px;
+      background: transparent;
+      color: #c5c6d1;
+      text-align: left;
+      text-decoration: none;
+    }
+
+    .nav-item:hover { background: var(--panel-2); color: #fff; }
+
+    .sidebar-bottom { margin-top: auto; }
+
+    .main {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+    }
+
+    .topbar {
+      height: 65px;
+      display: flex;
+      flex: none;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding: 0 25px;
+    }
+
+    .status { display: flex; align-items: center; gap: 7px; color: var(--green); font-size: 12px; }
+
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+    .status.offline { color: var(--danger); }
+
+    .messages {
+      display: flex;
+      min-height: 0;
+      flex: 1;
+      flex-direction: column;
+      gap: 22px;
+      overflow-y: auto;
+      padding: 35px 8%;
+    }
+
+    .welcome { max-width: 520px; margin: auto; text-align: center; }
+
+    .welcome-icon { margin-bottom: 20px; color: var(--accent); font-size: 43px; }
+
+    .welcome h1 { margin: 0 0 12px; font-size: 30px; }
+
+    .welcome p { margin: 0; color: var(--muted); line-height: 1.7; }
+
+    .message {
+      max-width: 85%;
+      border-radius: 14px;
+      padding: 14px 17px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .user-message { align-self: flex-end; background: var(--accent-2); }
+
+    .ai-message { align-self: flex-start; border: 1px solid var(--border); background: var(--panel-2); }
+
+    .input-area { flex: none; padding: 15px 25px 22px; }
+
+    .input-box {
+      display: flex;
+      max-width: 850px;
+      align-items: flex-end;
+      gap: 10px;
+      margin: auto;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 12px;
+      background: var(--panel);
+    }
+
+    .input-box:focus-within { border-color: var(--accent); }
+
+    #prompt {
+      min-height: 45px;
+      max-height: 130px;
+      flex: 1;
+      resize: none;
+      border: 0;
+      outline: 0;
+      padding: 12px 8px;
+      background: transparent;
+      color: #fff;
+    }
+
+    #prompt::placeholder { color: var(--muted); }
+
+    .send-button {
+      width: 43px;
+      height: 43px;
+      flex: none;
+      border: 0;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 19px;
+    }
+
+    .send-button:hover { background: var(--accent-2); }
+
+    .send-button:disabled { cursor: wait; opacity: .6; }
+
+    .input-hint { max-width: 850px; margin: 8px auto 0; color: var(--muted); font-size: 11px; }
+
+    .activity-panel { min-width: 0; border-left: 1px solid var(--border); background: #15161d; }
+
+    .activity-header {
+      height: 65px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding: 0 19px;
+      font-weight: 700;
+    }
+
+    .clear-button { border: 0; background: transparent; color: var(--muted); }
+
+    .activity-content { max-height: calc(100vh - 65px); overflow-y: auto; padding: 20px; }
+
+    .activity-status { margin-bottom: 25px; border: 1px solid var(--border); border-radius: 11px; padding: 15px; background: var(--panel); }
+
+    .activity-status small { display: block; margin-bottom: 8px; color: var(--muted); }
+
+    .activity-status strong { font-size: 13px; font-weight: 400; }
+
+    .activity-title { margin-bottom: 15px; color: var(--muted); font-size: 11px; letter-spacing: 1px; }
+
+    .activity-item { display: flex; gap: 11px; margin-bottom: 18px; color: #c5c6d1; font-size: 12px; }
+
+    .activity-icon { color: var(--accent); }
+
+    .activity-time { display: block; margin-top: 5px; color: var(--muted); font-size: 10px; }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 20;
+      inset: 0;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, .66);
+    }
+
+    .modal.active { display: flex; }
+
+    .modal-content {
+      width: 100%;
+      max-width: 420px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 25px;
+      background: var(--panel);
+    }
+
+    .modal-content h2 { margin: 0 0 14px; }
+
+    .modal-content p { color: var(--muted); line-height: 1.7; }
+
+    .modal-content input {
+      width: 100%;
+      margin: 15px 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .website-list { max-height: 180px; overflow-y: auto; padding-left: 20px; color: var(--muted); }
+
+    .website-list a { color: var(--text); }
+
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+    .modal-actions button { border: 0; border-radius: 8px; padding: 10px 15px; }
+
+    .primary { background: var(--accent); color: #fff; }
+
+    .secondary { background: var(--panel-2); color: #fff; }
+
+    @media (max-width: 1000px) {
+      .app { grid-template-columns: 245px minmax(0, 1fr); }
+      .activity-panel { display: none; }
+    }
+
+    @media (max-width: 750px) {
+      .app { grid-template-columns: 65px minmax(0, 1fr); }
+      .sidebar { padding: 15px 8px; }
+      .brand { margin: 5px 0 25px; font-size: 17px; text-align: center; }
+      .brand span, .nav-item span, .sidebar-label { display: none; }
+      .new-chat { font-size: 0; padding: 12px 5px; }
+      .new-chat::after { content: '+'; font-size: 18px; }
+      .nav-item { justify-content: center; padding: 12px 3px; }
+      .topbar { padding: 0 15px; }
+      .messages { padding: 25px 15px; }
+      .input-area { padding: 12px; }
+      .message { max-width: 92%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" aria-label="BrowserAI navigation">
+      <a class="brand" href="/" aria-label="Friends for a Cause Foundation">Browser<span>AI</span></a>
+
+      <button class="new-chat" type="button" onclick="newChat()">+ New Chat</button>
+
+      <div class="sidebar-label">WORKSPACE</div>
+      <button class="nav-item" type="button" onclick="newChat()" aria-label="Chat">💬 <span>Chat</span></button>
+      <button class="nav-item" type="button" onclick="openModal('webModal')" aria-label="Save approved website">🌐 <span>Save Approved Website</span></button>
+
+      <div class="sidebar-label">PREFERENCES</div>
+      <button class="nav-item" type="button" onclick="openModal('settingsModal')" aria-label="Settings">⚙️ <span>Settings</span></button>
+
+      <div class="sidebar-bottom">
+        <div class="sidebar-label">FFCF COMMUNITY</div>
+        <a class="nav-item" href="/" title="Join the Jr. Club">Glitch<span>Bug</span></a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>AI Browser Assistant</div>
+        <div class="status" id="backendStatus" role="status" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="backendStatusText">Checking agent…</span>
+        </div>
+      </header>
+
+      <div class="messages" id="messages" aria-live="polite">
+        <section class="welcome" id="welcome" aria-labelledby="welcomeTitle">
+          <div class="welcome-icon" aria-hidden="true">✦</div>
+          <h1 id="welcomeTitle">What can I do for you?</h1>
+          <p>Describe a browser task, then confirm before the connected agent starts. Tasks are limited to approved websites and safe navigation actions.</p>
+        </section>
+      </div>
+
+      <div class="input-area">
+        <div class="input-box">
+          <textarea id="prompt" rows="1" maxlength="500" placeholder="Example: Search Wikipedia for renewable energy" aria-label="Message BrowserAI" onkeydown="handleKey(event)"></textarea>
+          <button class="send-button" type="button" aria-label="Send message" onclick="sendMessage()">↑</button>
+        </div>
+        <div class="input-hint" id="inputHint">Enter to send · Shift + Enter for a new line</div>
+      </div>
+    </main>
+
+    <aside class="activity-panel" aria-label="Activity monitor">
+      <header class="activity-header">
+        <span>Activity Monitor</span>
+        <button class="clear-button" type="button" onclick="clearActivity()">Clear</button>
+      </header>
+      <div class="activity-content">
+        <div class="activity-status">
+          <small>CURRENT STATUS</small>
+          <strong id="currentStatus" role="status" aria-live="polite">Waiting for a task…</strong>
+        </div>
+        <div class="activity-title">RECENT ACTIVITY</div>
+        <div id="activityList">
+          <div class="activity-item">
+            <span class="activity-icon" aria-hidden="true">●</span>
+            <div>BrowserAI initialized<span class="activity-time">Ready</span></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="modal" id="webModal" role="dialog" aria-modal="true" aria-labelledby="webModalTitle">
+    <div class="modal-content">
+      <h2 id="webModalTitle">Save a website</h2>
+      <p>Only websites approved by the connected browser agent can be saved here.</p>
+      <label for="websiteUrl" class="sr-only">Website URL</label>
+      <input id="websiteUrl" type="url" placeholder="https://example.com" autocomplete="url" list="approvedWebsiteOptions">
+      <datalist id="approvedWebsiteOptions"></datalist>
+      <p id="websiteMessage" role="status" aria-live="polite"></p>
+      <ul class="website-list" id="websiteList"></ul>
+      <div class="modal-actions">
+        <button class="secondary" type="button" onclick="closeModal('webModal')">Cancel</button>
+        <button class="primary" type="button" onclick="importWebsite()">Add Website</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
+    <div class="modal-content">
+      <h2 id="settingsModalTitle">Settings</h2>
+      <p>Browser tasks use the Ollama model and Selenium browser configured on the Python server. The agent is restricted to approved websites and safe navigation commands.</p>
+      <div class="modal-actions">
+        <button class="primary" type="button" onclick="closeModal('settingsModal')">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let lastFocusedElement = null;
+    let taskAuthorization = null;
+    let automationAvailable = false;
+    let taskInProgress = false;
+    let approvedWebsites = [];
+
+    function addMessage(text, type) {
+      document.getElementById('welcome')?.remove();
+      const messages = document.getElementById('messages');
+      const message = document.createElement('div');
+      message.className = 'message ' + (type === 'user' ? 'user-message' : 'ai-message');
+      message.textContent = text;
+      messages.appendChild(message);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function setTaskControlsDisabled(disabled) {
+      taskInProgress = disabled;
+      document.getElementById('prompt').disabled = disabled;
+      document.querySelector('.send-button').disabled = disabled;
+    }
+
+    function getTaskAuthorization() {
+      if (taskAuthorization) return taskAuthorization;
+      const password = window.prompt('Enter the server admin password to run a browser task:');
+      if (password === null) return null;
+      const bytes = new TextEncoder().encode('aham:' + password);
+      const binary = Array.from(bytes, byte => String.fromCharCode(byte)).join('');
+      taskAuthorization = 'Basic ' + btoa(binary);
+      return taskAuthorization;
+    }
+
+    async function apiRequest(url, options = {}) {
+      const authorization = getTaskAuthorization();
+      if (!authorization) return null;
+      const headers = new Headers(options.headers || {});
+      headers.set('Authorization', authorization);
+      const response = await fetch(url, { ...options, headers, cache: 'no-store', credentials: 'same-origin' });
+      if (response.status === 401) {
+        taskAuthorization = null;
+        throw new Error('The admin password was not accepted. Try again.');
+      }
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || 'The server could not complete the request.');
+      return data;
+    }
+
+    async function checkAutomationStatus() {
+      const status = document.getElementById('backendStatus');
+      const statusText = document.getElementById('backendStatusText');
+      try {
+        const response = await fetch('/api/status', { cache: 'no-store' });
+        const data = await response.json();
+        automationAvailable = response.ok && data.enabled === true;
+        status.classList.toggle('offline', !automationAvailable);
+        statusText.textContent = automationAvailable ? 'Agent ready' : 'Agent disabled';
+        document.getElementById('currentStatus').textContent = data.message || 'Browser automation is unavailable.';
+        if (automationAvailable) await loadApprovedWebsites();
+      } catch (error) {
+        automationAvailable = false;
+        status.classList.add('offline');
+        statusText.textContent = 'Agent unavailable';
+        document.getElementById('currentStatus').textContent = 'Could not connect to the Python server.';
+      }
+    }
+
+    async function loadApprovedWebsites() {
+      const response = await fetch('/api/websites', { cache: 'no-store' });
+      const data = await response.json();
+      if (!response.ok || !Array.isArray(data.websites)) throw new Error(data.error || 'Approved websites could not be loaded.');
+      approvedWebsites = data.websites;
+      const options = document.getElementById('approvedWebsiteOptions');
+      options.replaceChildren();
+      approvedWebsites.forEach(website => {
+        const option = document.createElement('option');
+        option.value = website.url;
+        option.label = website.name;
+        options.appendChild(option);
+      });
+      renderSavedWebsites();
+    }
+
+    function sendMessage() {
+      if (taskInProgress) return;
+      const input = document.getElementById('prompt');
+      const text = input.value.trim();
+      if (!text) return;
+      if (!automationAvailable) {
+        addMessage('Browser automation is unavailable. Check that the Python server is configured and running.', 'ai');
+        return;
+      }
+      if (!window.confirm('This will start the connected browser agent. It can only use approved websites and safe navigation actions. Continue?')) return;
+
+      addMessage(text, 'user');
+      input.value = '';
+      addActivity('New task received', '✦');
+      document.getElementById('currentStatus').textContent = 'Starting browser agent…';
+      setTaskControlsDisabled(true);
+      startBrowserTask(text);
+    }
+
+    async function startBrowserTask(prompt) {
+      try {
+        const task = await apiRequest('/api/tasks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt })
+        });
+        if (!task) {
+          setTaskControlsDisabled(false);
+          return;
+        }
+        document.getElementById('currentStatus').textContent = 'Browser agent is working…';
+        addActivity('Browser agent started', '✦');
+        pollBrowserTask(task.id);
+      } catch (error) {
+        addMessage(error.message, 'ai');
+        addActivity('Could not start browser task', '!');
+        document.getElementById('currentStatus').textContent = 'Task could not start';
+        setTaskControlsDisabled(false);
+      }
+    }
+
+    async function pollBrowserTask(taskId) {
+      try {
+        const task = await apiRequest('/api/tasks/' + encodeURIComponent(taskId));
+        if (!task) {
+          setTaskControlsDisabled(false);
+          return;
+        }
+        if (task.status === 'running') {
+          window.setTimeout(() => pollBrowserTask(taskId), 1000);
+          return;
+        }
+        if (task.status === 'failed') throw new Error(task.error || 'The browser task failed.');
+
+        const result = task.result || {};
+        const summary = [
+          'Task ' + (result.status || 'finished').toLowerCase() + '.',
+          'Completed: ' + (result.completed ?? 0) + '/' + (result.total ?? 0),
+          'Failed: ' + (result.failed ?? 0),
+          'Rejected: ' + (result.rejected ?? 0)
+        ];
+        if (Array.isArray(result.commands) && result.commands.length) {
+          summary.push('', 'Plan:', ...result.commands.map(command => '• ' + command));
+        }
+        addMessage(summary.join('\n'), 'ai');
+        addActivity('Browser task ' + (result.status || 'finished').toLowerCase(), '✓');
+        document.getElementById('currentStatus').textContent = 'Task ' + (result.status || 'finished').toLowerCase();
+        setTaskControlsDisabled(false);
+      } catch (error) {
+        addMessage(error.message, 'ai');
+        addActivity('Browser task failed', '!');
+        document.getElementById('currentStatus').textContent = 'Task failed';
+        setTaskControlsDisabled(false);
+      }
+    }
+
+    function handleKey(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    }
+
+    function addActivity(text, icon = '●') {
+      const list = document.getElementById('activityList');
+      const item = document.createElement('div');
+      item.className = 'activity-item';
+      const symbol = document.createElement('span');
+      symbol.className = 'activity-icon';
+      symbol.textContent = icon;
+      const content = document.createElement('div');
+      content.textContent = text;
+      const time = document.createElement('span');
+      time.className = 'activity-time';
+      time.textContent = new Date().toLocaleTimeString();
+      content.appendChild(time);
+      item.append(symbol, content);
+      list.prepend(item);
+      while (list.children.length > 50) list.lastElementChild.remove();
+    }
+
+    function clearActivity() {
+      document.getElementById('activityList').replaceChildren();
+      addActivity('Activity cleared', '✓');
+    }
+
+    function newChat() {
+      const messages = document.getElementById('messages');
+      messages.replaceChildren();
+      const welcome = document.createElement('section');
+      welcome.className = 'welcome';
+      welcome.id = 'welcome';
+      const icon = document.createElement('div');
+      icon.className = 'welcome-icon';
+      icon.textContent = '✦';
+      const title = document.createElement('h1');
+      title.textContent = 'What can I do for you?';
+      const description = document.createElement('p');
+      description.textContent = 'Start a new task with BrowserAI.';
+      welcome.append(icon, title, description);
+      messages.appendChild(welcome);
+      document.getElementById('prompt').focus();
+      document.getElementById('currentStatus').textContent = 'Waiting for a task…';
+    }
+
+    function openModal(id) {
+      lastFocusedElement = document.activeElement;
+      const modal = document.getElementById(id);
+      modal.classList.add('active');
+      modal.querySelector('input, button')?.focus();
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+      lastFocusedElement?.focus();
+    }
+
+    function saveApprovedWebsites() {
+      try {
+        localStorage.setItem('browserai_saved_websites', JSON.stringify(approvedWebsites));
+      } catch (_) {}
+    }
+
+    function renderSavedWebsites() {
+      const list = document.getElementById('websiteList');
+      list.replaceChildren();
+      approvedWebsites.forEach(website => {
+        const item = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = website.url;
+        link.textContent = website.name;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        item.appendChild(link);
+        list.appendChild(item);
+      });
+    }
+
+    function importWebsite() {
+      const input = document.getElementById('websiteUrl');
+      const message = document.getElementById('websiteMessage');
+      let url;
+      try { url = new URL(input.value); } catch (_) {
+        message.textContent = 'Enter a valid URL.';
+        return;
+      }
+      if (url.protocol !== 'https:' || !approvedWebsites.some(site => {
+        const approved = new URL(site.url);
+        return url.hostname === approved.hostname || url.hostname.endsWith('.' + approved.hostname);
+      })) {
+        message.textContent = 'That website is not in the approved list.';
+        return;
+      }
+      if (!approvedWebsites.some(site => site.url === url.href)) {
+        approvedWebsites.push({ name: url.hostname, url: url.href });
+        saveApprovedWebsites();
+        renderSavedWebsites();
+      }
+      message.textContent = 'Website approved and saved.';
+      input.value = '';
+    }
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        document.querySelectorAll('.modal.active').forEach(modal => closeModal(modal.id));
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', checkAutomationStatus);
+  </script>
+</body>
+</html>
