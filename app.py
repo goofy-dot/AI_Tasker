@@ -9,7 +9,11 @@ BASE_DIR = Path(__file__).resolve().parent
 app = Flask(__name__)
 
 # Set these as environment variables in Render.
-INVITE_CODE = os.environ.get("BROWSERAI_INVITE_CODE", "")
+INVITE_CODES = [
+    code.strip()
+    for code in os.environ.get("BROWSERAI_INVITE_CODES", "").split(",")
+    if code.strip()
+]
 ADMIN_PASSWORD = os.environ.get("BROWSERAI_ADMIN_PASSWORD", "")
 
 # The AI/browser worker is deliberately disabled until it is hosted
@@ -19,7 +23,10 @@ AGENT_ENABLED = os.environ.get("BROWSERAI_AGENT_ENABLED", "false").lower() == "t
 
 def invite_is_valid():
     supplied = request.headers.get("X-Invite-Code", "")
-    return bool(INVITE_CODE) and hmac.compare_digest(supplied, INVITE_CODE)
+    return any(
+        hmac.compare_digest(supplied, code)
+        for code in INVITE_CODES
+    )
 
 
 def admin_is_valid():
