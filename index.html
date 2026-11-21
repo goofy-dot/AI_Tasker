@@ -459,7 +459,13 @@
       const status = document.getElementById('backendStatus');
       const statusText = document.getElementById('backendStatusText');
       try {
-        const response = await fetch('/api/status', { cache: 'no-store' });
+        const code = getInviteCode();
+if (!code) throw new Error('An invitation code is required.');
+
+const response = await fetch('/api/status', {
+  cache: 'no-store',
+  headers: { 'X-Invite-Code': code }
+});
         const data = await response.json();
         automationAvailable = response.ok && data.enabled === true;
         status.classList.toggle('offline', !automationAvailable);
@@ -475,7 +481,10 @@
     }
 
     async function loadApprovedWebsites() {
-      const response = await fetch('/api/websites', { cache: 'no-store' });
+    const response = await fetch('/api/websites', {
+  cache: 'no-store',
+  headers: { 'X-Invite-Code': getInviteCode() }
+});
       const data = await response.json();
       if (!response.ok || !Array.isArray(data.websites)) throw new Error(data.error || 'Approved websites could not be loaded.');
       approvedWebsites = data.websites;
