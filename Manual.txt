@@ -1,74 +1,129 @@
 BROWSERAI - LOCAL WINDOWS EDITION
 =================================
 
-This version does not use Render. The dashboard, Ollama AI model, and browser
-automation run on the SAME Windows computer.
+BrowserAI runs on one Windows computer. The Flask dashboard, Ollama AI model,
+and Microsoft Edge browser automation all run locally on that computer.
 
 FILES IN THIS PACKAGE
 ---------------------
-app.py                 Flask server and background task connection
-browser_agent.py       Your browser automation and AI planning code
-index.html             Dashboard connected to the Flask API
-requirements.txt       Python packages (no editing required)
-START_BROWSERAI_WINDOWS.bat  One-click Windows setup and launcher
+app.py                    Flask server and dashboard API
+browser_agent.py          Browser automation and AI planning code
+index.html                BrowserAI dashboard
+requirements.txt          Required Python packages
+Foraibackendtasker.bat    Windows setup and launcher
+Manual.txt                These instructions
 
-You do not need to edit any of the four code files for the normal local setup.
-The requirements file is installed automatically by the launcher.
+You do not need to edit the Python or HTML files for a normal local setup.
+The launcher creates a Python virtual environment and installs the packages.
 
 FIRST-TIME REQUIREMENTS
 ----------------------
-1. Windows 10 or 11.
+1. Windows 10 or Windows 11.
 2. Python 3.10 or newer: https://www.python.org/downloads/
-   During setup, tick "Add Python to PATH".
-3. Microsoft Edge installed.
+   During installation, enable "Add Python to PATH".
+3. Microsoft Edge installed and up to date.
 4. Ollama for Windows: https://ollama.com/download/windows
 
-START IT
---------
+START BROWSERAI
+---------------
 1. Extract the entire ZIP file into a normal folder, for example:
    C:\BrowserAI
-2. Install Python, Edge, and Ollama from the links above.
-3. Start Ollama (normally it runs in the background after installation).
-4. Double-click START_BROWSERAI_WINDOWS.bat.
-5. On first run, the script creates a Python environment, installs packages,
-   and downloads the phi3 model if it is not already installed.
-6. When it says the server is running, open:
+   Do not run the launcher from inside the ZIP file.
+2. Install Python, Microsoft Edge, and Ollama using the links above.
+3. Start Ollama. It normally runs in the background after installation.
+4. Double-click Foraibackendtasker.bat.
+5. On the first run, the launcher creates a Python virtual environment and
+   installs the required packages. This may take several minutes.
+6. The launcher checks for the default Ollama model, phi3. If it is missing,
+   the launcher downloads it. The download can take some time.
+7. When prompted, create an admin password. Password input is hidden while
+   you type. Keep this password private; it is required to run browser tasks.
+8. The launcher displays a one-time invitation code in the command window.
+   Enter that code when the dashboard asks for it.
+9. Open the dashboard at:
    http://127.0.0.1:5000
-7. Invitation code: browserai-local
-8. Enter the admin password you created in the command window when asked.
-9. Keep the black command window open while using the dashboard.
+10. Keep the black command window open while using BrowserAI.
 
-IMPORTANT
----------
-- This is a local-only setup. The server binds to 127.0.0.1 and is not exposed
-  to the public internet. No Render account or deployment is needed.
-- BrowserAI uses Microsoft Edge through Selenium and Ollama locally.
-- The browser agent uses its own persistent Edge profile in agent_data. Do not
-  share that profile folder; it may contain signed-in website sessions.
-- Start with harmless tasks such as "Open Wikipedia" or "Search Google for
-  Python tutorials". Review the confirmation prompt before each task.
-- The agent is restricted by its built-in approved-site and safe-command rules.
-- If Ollama is not running, start the Ollama application and try again.
-- If Edge fails to start, update Microsoft Edge and rerun the setup.
-- To stop BrowserAI, press Ctrl+C in the server window.
+IMPORTANT SECURITY AND PRIVACY NOTES
+------------------------------------
+- BrowserAI is configured to bind to 127.0.0.1, which makes the dashboard
+  available from this computer only. Do not change the bind address or expose
+  the service to your network or the public internet without a separate
+  security review.
+- A new invitation code is generated each time the launcher starts. It is
+  printed in the command window. Treat it as private and do not post or share
+  it publicly. If you restart BrowserAI, use the new code. If the dashboard
+  still remembers the previous code in the current browser tab, open a new tab.
+- The admin password is entered through a hidden PowerShell prompt. It is
+  passed to the local Python process so the application can verify it. Do not
+  share your password.
+- BrowserAI uses a separate, persistent Microsoft Edge profile in the
+  agent_data folder. That folder may contain cookies, signed-in website
+  sessions, browsing data, or other private information. Do not send or share
+  the agent_data folder with anyone.
+- Browser automation can make changes on websites. Start with harmless tasks,
+  review the task confirmation, and supervise the browser while it works.
+  Do not use it for payments, purchases, account changes, or other sensitive
+  actions unless you understand and approve every step.
+- Built-in approved-site and command checks reduce risk, but they do not make
+  AI-generated browser actions completely safe or error-proof.
+- The invitation code is an additional local access check, not a replacement
+  for keeping the computer, password, and files secure.
+
+USING THE DASHBOARD
+-------------------
+1. Open http://127.0.0.1:5000 in Microsoft Edge or another browser on the
+   same computer.
+2. Enter the invitation code shown by the launcher when requested.
+3. When you submit a browser task, enter the admin password when prompted.
+4. Review the task confirmation and watch the browser as the task runs.
+5. Only one browser task can run at a time.
+
+STOPPING BROWSERAI
+------------------
+Return to the command window and press Ctrl+C. Closing the command window
+also stops the dashboard and any active browser task.
 
 OPTIONAL CONFIGURATION
 ----------------------
-The default AI model is phi3. To use another model, set the environment
-variable BROWSER_AGENT_MODEL before starting the .bat file, and make sure
-that model has been downloaded in Ollama.
-
-To change the invitation code, edit BROWSERAI_INVITE_CODES in the .bat file.
-To change the admin password, enter a new one when prompted at startup.
+- The default Ollama model is phi3. To use another model, set the environment
+  variable BROWSER_AGENT_MODEL before starting the launcher, and make sure
+  that model is already available in Ollama. The launcher will download the
+  selected model if it is not present.
+- To use a different local port, set the PORT environment variable before
+  starting the launcher. The default is 5000.
+- To provide an admin password through the environment instead of the hidden
+  prompt, set BROWSERAI_ADMIN_PASSWORD before starting the launcher. Keep it
+  private and avoid storing it in shared scripts or files.
 
 TROUBLESHOOTING
 ---------------
-"Python was not found": install Python and enable Add Python to PATH.
-"Ollama was not found": install Ollama, start it, and run the .bat again.
-"model not found": allow the script to run `ollama pull phi3` to completion.
-"Microsoft Edge failed": update Edge; then run the .bat again.
-"Port 5000 is in use": close the other program using port 5000, or set PORT
-  to another port before running app.py.
+"Python was not found": Install Python 3.10 or newer and enable
+Add Python to PATH. Close and reopen the command window, then run the launcher.
 
-The local dashboard and agent share one process. Only one browser task can run
-at a time. Closing the server window stops the dashboard and any active task.
+"Ollama was not found": Install Ollama from the link above, then close and
+reopen the command window and run the launcher again.
+
+"Ollama is not responding": Start the Ollama application and run the launcher
+again. The launcher checks that Ollama can respond before checking the model.
+
+"Model download failed": Make sure Ollama is running and that the computer
+has an internet connection. Run the launcher again after the download issue
+is resolved.
+
+"Microsoft Edge failed to start": Update Microsoft Edge and run the launcher
+again. Check that security software is not blocking the browser automation.
+
+"Invitation code was rejected": Use the latest code printed by the current
+launcher window. If you restarted BrowserAI, open a new dashboard tab and
+enter the newly generated code.
+
+"Admin password was not accepted": Check that you entered the same password
+created at startup. Restart the launcher if you need to create a new password.
+
+"Port is already in use": Close the other program using the port, or set PORT
+to an unused port before starting the launcher. Use the matching port in the
+browser address, for example http://127.0.0.1:5001.
+
+The dashboard and browser agent run in one local process. Closing that process
+stops the dashboard and any active task.
