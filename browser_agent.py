@@ -2971,6 +2971,9 @@ def run_task(task: str, driver):
         plan["commands"]
     )
 
+    # Include the validated plan in the dashboard response.
+    results["commands"] = list(plan.get("commands", []))
+
     # Retrieve a potentially restarted browser.
 
     driver = results.pop("_driver", driver)

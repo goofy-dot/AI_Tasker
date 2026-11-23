@@ -384,7 +384,7 @@
   <div class="modal" id="webModal" role="dialog" aria-modal="true" aria-labelledby="webModalTitle">
     <div class="modal-content">
       <h2 id="webModalTitle">Save a website</h2>
-      <p>Only websites approved by the connected browser agent can be saved here.</p>
+      <p>Save shortcuts to HTTPS pages on domains already approved by the browser agent. This does not grant access to new domains.</p>
       <label for="websiteUrl" class="sr-only">Website URL</label>
       <input id="websiteUrl" type="url" placeholder="https://example.com" autocomplete="url" list="approvedWebsiteOptions">
       <datalist id="approvedWebsiteOptions"></datalist>
@@ -428,6 +428,18 @@
       taskInProgress = disabled;
       document.getElementById('prompt').disabled = disabled;
       document.querySelector('.send-button').disabled = disabled;
+    }
+
+    // Local invitation code is stored only for this browser session.
+    function getInviteCode() {
+      let code = sessionStorage.getItem('browserai_invite_code');
+      if (!code) {
+        code = window.prompt('Enter your BrowserAI invitation code:', 'browserai-local');
+        if (code === null) return '';
+        code = code.trim();
+        if (code) sessionStorage.setItem('browserai_invite_code', code);
+      }
+      return code || '';
     }
 
     function getTaskAuthorization() {
@@ -487,7 +499,27 @@ const response = await fetch('/api/status', {
 });
       const data = await response.json();
       if (!response.ok || !Array.isArray(data.websites)) throw new Error(data.error || 'Approved websites could not be loaded.');
-      approvedWebsites = data.websites;
+      const serverWebsites = data.websites;
+      let savedWebsites = [];
+      try {
+        const parsed = JSON.parse(localStorage.getItem('browserai_saved_websites') || '[]');
+        if (Array.isArray(parsed)) savedWebsites = parsed.filter(site => site && typeof site.url === 'string');
+      } catch (_) {}
+      // Keep saved shortcuts only when their host is within the server's approved domains.
+      approvedWebsites = [...serverWebsites];
+      savedWebsites.forEach(site => {
+        try {
+          const candidate = new URL(site.url);
+          const allowed = serverWebsites.some(base => {
+            const root = new URL(base.url);
+            return candidate.protocol === 'https:' &&
+              (candidate.hostname === root.hostname || candidate.hostname.endsWith('.' + root.hostname));
+          });
+          if (allowed && !approvedWebsites.some(existing => existing.url === candidate.href)) {
+            approvedWebsites.push({ name: site.name || candidate.hostname, url: candidate.href });
+          }
+        } catch (_) {}
+      });
       const options = document.getElementById('approvedWebsiteOptions');
       options.replaceChildren();
       approvedWebsites.forEach(website => {
@@ -548,6 +580,7 @@ const response = await fetch('/api/status', {
           return;
         }
         if (task.status === 'running') {
+          document.getElementById('currentStatus').textContent = task.message || 'Browser agent is working…';
           window.setTimeout(() => pollBrowserTask(taskId), 1000);
           return;
         }
