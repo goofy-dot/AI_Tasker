@@ -9,9 +9,12 @@ import threading
 import uuid
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 from flask import Flask, jsonify, request, send_from_directory
 
 BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(BASE_DIR / ".env")  # Read the user-editable settings file, if present.
 app = Flask(__name__)
 
 INVITE_CODES = [
@@ -133,7 +136,7 @@ def status():
             "enabled": False,
             "message": f"Agent is not ready: {type(exc).__name__}: {str(exc)[:180]}. Check Ollama and Python dependencies."
         })
-    return jsonify({"enabled": True, "message": f"Browser agent connected. Ollama model '{configured_model}' is ready."})
+    return jsonify({"enabled": True, "message": f"Browser agent connected. Ollama model '{configured_model}' is ready.", "automation_browser": getattr(browser_agent, "BROWSER_CHOICE", "auto")})
 
 
 @app.get("/api/websites")
