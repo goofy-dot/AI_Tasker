@@ -14,6 +14,11 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from urllib.parse import urlparse
 
+from dotenv import load_dotenv
+
+# Also load settings when this module is run/imported independently.
+load_dotenv(Path(__file__).resolve().parent / ".env")
+
 import ollama
 
 from selenium import webdriver
@@ -26,7 +31,8 @@ from selenium.common.exceptions import (
 )
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.edge.options import Options
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -39,6 +45,9 @@ APP_NAME = "AI Browser Agent"
 VERSION = "2.0.0"
 
 MODEL = os.environ.get("BROWSER_AGENT_MODEL", "phi3")
+BROWSER_CHOICE = os.environ.get("BROWSER_AGENT_BROWSER", "auto").strip().lower()
+if BROWSER_CHOICE not in {"auto", "chrome", "edge"}:
+    BROWSER_CHOICE = "auto"
 
 HEADLESS = os.environ.get(
     "BROWSER_AGENT_HEADLESS", "1"
@@ -55,7 +64,7 @@ MAX_WAIT_SECONDS = 15
 
 MAX_RECOVERY_ATTEMPTS = 2
 
-# Set BROWSER_AGENT_HEADLESS=0 to show Edge.
+# Set BROWSER_AGENT_HEADLESS=0 to show the selected browser.
 # Set BROWSER_AGENT_SETUP=1 for visible browser setup.
 
 SETUP_MODE = os.environ.get(
@@ -77,7 +86,7 @@ LOG_DIR = BASE_DIR / "logs"
 SCREENSHOT_DIR = DATA_DIR / "screenshots"
 DOWNLOAD_DIR = DATA_DIR / "downloads"
 
-PROFILE_DIR = DATA_DIR / "edge_profile"
+PROFILE_DIR = DATA_DIR / "browser_profiles"
 
 MEMORY_FILE = DATA_DIR / "memory.json"
 HISTORY_FILE = DATA_DIR / "task_history.json"
@@ -842,93 +851,73 @@ def browser_is_alive(driver) -> bool:
 
 
 # ============================================================
-# 2. START MICROSOFT EDGE
+# 2. START CHROME OR EDGE
 # ============================================================
 
 def start_browser():
+    """Start Chrome or Edge using Selenium Manager to locate a matching driver.
 
-    logger.info("Starting Microsoft Edge")
+    BROWSER_AGENT_BROWSER accepts: auto, chrome, or edge. In auto mode Chrome
+    is tried first, then Edge. The dashboard browser and automation browser are
+    independent: users may view the dashboard in Chrome while automation uses Edge.
+    """
+    candidates = ["chrome", "edge"] if BROWSER_CHOICE == "auto" else [BROWSER_CHOICE]
+    failures = []
 
-    options = Options()
+    for browser_name in candidates:
+        driver = None
+        try:
+            logger.info("Starting %s automation browser", browser_name.title())
+            options = ChromeOptions() if browser_name == "chrome" else EdgeOptions()
 
-    # Headless configuration.
+            if HEADLESS:
+                options.add_argument("--headless=new")
 
-    if HEADLESS:
+            options.add_argument("--window-size=1920,1080")
+            options.add_argument("--disable-notifications")
+            options.add_argument("--disable-popup-blocking")
+            options.add_argument("--disable-save-password-bubble")
+            options.add_argument("--no-first-run")
+            options.add_argument("--disable-sync")
+            options.add_argument("--disable-background-networking")
+            options.add_argument("--disable-features=Translate,MediaRouter")
+            options.add_argument("--disable-blink-features=AutomationControlled")
+            options.add_argument("--password-store=basic")
 
-        options.add_argument("--headless=new")
+            profile_dir = PROFILE_DIR / browser_name
+            profile_dir.mkdir(parents=True, exist_ok=True)
+            options.add_argument(f"--user-data-dir={profile_dir.resolve()}")
 
-    # General browser configuration.
+            preferences = {
+                "download.default_directory": str(DOWNLOAD_DIR.resolve()),
+                "download.prompt_for_download": False,
+                "download.directory_upgrade": True,
+                "safebrowsing.enabled": True,
+            }
+            options.add_experimental_option("prefs", preferences)
 
-    options.add_argument("--window-size=1920,1080")
+            # Selenium Manager (included with Selenium 4.6+) locates/downloads
+            # a compatible driver for the installed browser where supported.
+            driver = webdriver.Chrome(options=options) if browser_name == "chrome" else webdriver.Edge(options=options)
+            driver.set_page_load_timeout(PAGE_LOAD_TIMEOUT)
+            driver.set_script_timeout(SCRIPT_TIMEOUT)
+            driver.implicitly_wait(0)
+            logger.info("%s started successfully", browser_name.title())
+            return driver
+        except Exception as exc:
+            failures.append(f"{browser_name}: {type(exc).__name__}: {str(exc)[:250]}")
+            logger.warning("Could not start %s: %s", browser_name.title(), exc)
+            if driver is not None:
+                try:
+                    driver.quit()
+                except Exception:
+                    pass
 
-    options.add_argument("--disable-notifications")
-
-    options.add_argument("--disable-popup-blocking")
-
-    options.add_argument("--disable-save-password-bubble")
-
-    options.add_argument("--no-first-run")
-
-    options.add_argument("--disable-sync")
-
-    options.add_argument("--disable-background-networking")
-
-    options.add_argument("--disable-component-update")
-
-    options.add_argument(
-        "--disable-features=Translate,MediaRouter"
+    raise RuntimeError(
+        "Could not start an automation browser. Install or update Google Chrome or "
+        "Microsoft Edge, then try again. Selenium Manager may need internet access "
+        "the first time it downloads a matching driver. Details: " + " | ".join(failures)
     )
-
-    options.add_argument(
-        "--disable-blink-features=AutomationControlled"
-    )
-
-    options.add_argument("--password-store=basic")
-
-    # Persistent browser profile.
-
-    options.add_argument(
-        f"--user-data-dir={PROFILE_DIR.resolve()}"
-    )
-
-    # Download configuration.
-
-    preferences = {
-
-        "download.default_directory": str(
-            DOWNLOAD_DIR.resolve()
-        ),
-
-        "download.prompt_for_download": False,
-
-        "download.directory_upgrade": True,
-
-        "safebrowsing.enabled": True,
-
-    }
-
-    options.add_experimental_option(
-        "prefs",
-        preferences
-    )
-
-    # Start browser.
-
-    driver = webdriver.Edge(options=options)
-
-    driver.set_page_load_timeout(
-        PAGE_LOAD_TIMEOUT
-    )
-
-    driver.set_script_timeout(
-        SCRIPT_TIMEOUT
-    )
-
-    driver.implicitly_wait(0)
-
-    logger.info("Microsoft Edge started successfully")
-
-    return driver
 
 
 # ============================================================
