@@ -1,129 +1,622 @@
-BROWSERAI - LOCAL WINDOWS EDITION
-=================================
+BROWSERAI - BEGINNER'S GUIDE FOR WINDOWS
+=======================================
 
-BrowserAI runs on one Windows computer. The Flask dashboard, Ollama AI model,
-and Microsoft Edge browser automation all run locally on that computer.
+Welcome to BrowserAI!
 
-FILES IN THIS PACKAGE
+This guide is written for people who have never used Python, a command
+window, or a coding tool. You do NOT need to write or edit code to follow the
+normal installation and use instructions below.
+
+BrowserAI is a local AI browser assistant for Windows 10 and Windows 11
+computers. You describe a task in everyday language, and it uses an AI model
+on that Windows computer to plan and carry out a limited set of browser actions
+on supported websites. You can view the dashboard in a modern browser such as
+Google Chrome or Microsoft Edge. The agent can automate Chrome or Edge.
+
+Please read the safety notes before using it. BrowserAI can interact with
+websites, and an automated action can still make a mistake.
+
+
+
+DEVICE AND BROWSER INFORMATION ON THE DASHBOARD
+------------------------------------------------
+Open Settings on the BrowserAI dashboard to see the Device & Browser panel.
+It reports the browser and version, operating system, approximate device type,
+and screen resolution detected by the browser you are currently using. It also
+shows the automation browser preference configured on the Windows computer.
+These are two separate things: your friend can view the dashboard in Chrome
+while the agent is configured to automate Edge, or vice versa.
+
+The device details are detected by the page using ordinary browser information.
+Some browsers limit or simplify this information, so the operating system or
+device type may occasionally be shown as an approximate value.
+
+1. WHAT IS INCLUDED IN THIS FOLDER?
+----------------------------------
+
+You should see these files:
+
+  app.py                    The local program that runs the dashboard.
+  browser_agent.py          The part that plans and performs browser actions.
+  index.html                The page you use as the BrowserAI dashboard.
+  requirements.txt          A list of extra Python components BrowserAI needs.
+  .env                      Your editable BrowserAI settings.
+  .env.example              A clean example of the settings file.
+  Foraibackendtasker.bat    The Windows file you double-click to set up and start it.
+  Manual.txt                This guide.
+
+You normally do not need to open, edit, or understand any of the files above.
+The .bat file is the launcher. Think of it as the Start button for BrowserAI.
+
+Keep all the files together in the same folder. Do not move just one file out
+of the folder, because BrowserAI needs the files to work together.
+
+
+2. WHAT YOU NEED BEFORE STARTING
+--------------------------------
+
+You need:
+
+  - A Windows 10 or Windows 11 computer. macOS, Linux, Chromebooks, and
+    phones are not supported for running the Python server in this package.
+  - An internet connection for the initial setup and AI model download.
+  - Python 3.10 or newer:
+    https://www.python.org/downloads/
+  - Google Chrome or Microsoft Edge (at least one is required for automation):
+    https://www.google.com/chrome/  or  https://www.microsoft.com/edge
+  - Ollama for Windows:
+    https://ollama.com/download/windows
+
+What are these things?
+
+  Python is a free program that allows the BrowserAI software to run.
+  Google Chrome or Microsoft Edge is the browser that BrowserAI can control.
+  You can open the BrowserAI dashboard in Chrome even when the agent controls
+  Edge, or open the dashboard in Edge while the agent controls Chrome.
+  Ollama runs the AI model locally on your computer. BrowserAI uses the
+  default model named "phi3" unless a different model has been configured.
+
+You do not need to create an Ollama account to follow the standard local setup.
+
+IMPORTANT WHEN INSTALLING PYTHON:
+During Python installation, select the option that says "Add Python to PATH"
+if it is offered. This helps Windows find Python when BrowserAI starts.
+If the Python installer offers the Python Launcher, leave that option enabled.
+
+Install Google Chrome or Microsoft Edge, plus Ollama, using their normal Windows installers.
+After Ollama is installed, open or start the Ollama application. It normally
+runs in the background. BrowserAI checks that Ollama is responding when it
+starts.
+
+
+3. EXTRACT THE ZIP FILE FIRST
+-----------------------------
+
+Do not double-click the .bat file while you are looking inside the ZIP file.
+Windows needs the files to be extracted into a normal folder first.
+
+1. Find the ZIP file you received.
+2. Right-click it.
+3. Choose "Extract All...".
+4. Follow the Windows prompt to extract the files.
+5. Open the extracted folder. You should be able to see Manual.txt and
+   Foraibackendtasker.bat in the same folder as the other project files.
+
+For example, you could place the folder here:
+
+  C:\BrowserAI
+
+The exact folder location does not matter. Choose somewhere you can find
+again, such as Documents or your Desktop. Avoid moving or renaming individual
+project files after setup.
+
+
+4. FIRST START - SETTING UP BROWSERAI
+-------------------------------------
+
+The first start takes longer than later starts. BrowserAI needs to prepare its
+private Python environment, install its supporting components, and download
+the AI model if it is not already installed.
+
+1. Make sure Python, Google Chrome or Microsoft Edge, and Ollama are installed.
+2. Start Ollama and leave it running.
+3. Open the extracted BrowserAI folder.
+4. Double-click "Foraibackendtasker.bat".
+5. A black command window will appear. This is normal. It is showing the
+   setup steps and messages from BrowserAI. Do not close it while BrowserAI
+   is running.
+6. On the first run, BrowserAI creates a folder named ".venv" and installs
+   the Python components it needs. This can take several minutes. Wait for it
+   to finish. An internet connection is needed to download the components.
+7. BrowserAI checks Ollama and checks whether the AI model is installed. If
+   the default model, "phi3", is missing, Ollama downloads it. This download
+   may be large and may take a while depending on your internet speed.
+8. The command window asks you to create an admin password. Type a password
+   and press Enter. The characters are hidden while you type. Choose a
+   password you can remember, but do not share it with other people.
+9. BrowserAI then displays an invitation code in the command window. This is
+   a temporary code for this launch. Keep the command window open so you can
+   refer to the code.
+10. When the window says BrowserAI is ready, open Google Chrome, Microsoft Edge, or another modern browser on this same
+    computer and go to:
+
+      http://127.0.0.1:5000
+
+11. The dashboard asks for the invitation code. Enter the code shown in the
+    command window. If Windows asks whether a browser should be allowed
+    through a firewall, do not enable public network access for BrowserAI.
+    The dashboard is intended for use on this computer only. It is not a cloud
+website and this setup does not let a second computer or phone connect to the
+first computer's dashboard. Your friend should install and run their own copy
+on their Windows computer.
+
+If the dashboard does not load, first check that the black command window is
+still open and that it says BrowserAI is ready.
+
+
+5. UNDERSTANDING THE DASHBOARD
+------------------------------
+
+The dashboard is the page you use to give BrowserAI instructions. You do not
+need to type computer commands or programming code into it. Use ordinary
+sentences to describe what you want it to do.
+
+The main parts are:
+
+  Chat area
+    This is where your request and BrowserAI's task result appear.
+
+  Message box at the bottom
+    Type the browser task here. Press Enter to send it. Use Shift + Enter
+    when you want to start a new line without sending the message.
+
+  Send button
+    The arrow button sends your request.
+
+  Activity Monitor
+    This area shows whether BrowserAI is waiting, starting, working, or has
+    finished a task. It also shows recent activity for the current dashboard
+    session. The Clear button clears the activity shown on the page.
+
+  New Chat
+    Starts a fresh conversation area in the dashboard. It does not restart
+    the BrowserAI program.
+
+  Save Approved Website
+    Lets you save a shortcut to an HTTPS page on a website domain that the
+    browser agent already allows. This is for convenience; it does NOT add a
+    brand-new website to the agent's approved list.
+
+  Settings
+    Shows information about the current browser-agent setup.
+
+
+6. HOW TO GIVE BROWSERAI A TASK
+-------------------------------
+
+Be clear and specific. Tell BrowserAI which website to use and what you want
+to find or do. Start with simple tasks so you can learn how it behaves.
+
+Example of a simple task:
+
+  Search Wikipedia for information about renewable energy.
+
+Another example:
+
+  Open YouTube and search for beginner drawing tutorials.
+
+Another example:
+
+  Open the Python website and find its page for beginners.
+
+A good request says:
+  - Which website or source to use.
+  - What information to look for.
+  - What result you want BrowserAI to find or read.
+
+Avoid vague instructions such as "do everything" or "find something useful".
+If the task is complicated, break it into smaller requests.
+
+When you send a request:
+
+1. BrowserAI checks that the request is within its task limits.
+2. A confirmation message appears before the browser task starts. Read it
+   and choose whether to continue.
+3. BrowserAI asks for the admin password before running the task. This is a
+   normal browser prompt; unlike the hidden password-creation prompt in the
+   command window, characters entered into this browser prompt may be visible.
+   Be aware of who can see your screen.
+4. The Activity Monitor shows progress while the task runs.
+5. Wait for the task to finish before sending another one. Only one browser
+   task can run at a time.
+6. Read the result and check whether it actually completed what you asked.
+
+The task text is limited to 1,000 characters by the backend. The dashboard
+input itself has a 500-character limit. The browser agent can plan up to 35
+actions for one task. If a request is too large, split it into smaller tasks.
+
+
+7. WHICH WEBSITES CAN IT USE?
+-----------------------------
+
+The browser agent has a built-in list of approved websites. The current list
+includes:
+
+  YouTube, Google, Gmail, Google Docs, Google Classroom, Google Drive,
+  Wikipedia, GitHub, Stack Overflow, Reddit, Khan Academy, Scratch, Canva,
+  Bing, DuckDuckGo, Twitch, Spotify, W3Schools, Python.org, MDN Web Docs,
+  ChatGPT, Outlook, Netflix, Amazon, TikTok, Instagram, Pinterest,
+  Coursera, and edX.
+
+The agent is intended to use approved HTTPS websites and a limited set of
+navigation and page-reading actions. The "Save Approved Website" feature
+only saves a shortcut for a domain that is already on the built-in list. It
+does not give the agent permission to visit a new domain.
+
+A website may change its layout or ask you to sign in. This can prevent a task
+from working as expected. BrowserAI cannot guarantee that every website or
+every task will work.
+
+
+8. IMPORTANT PRIVACY AND SAFETY INFORMATION
+-------------------------------------------
+
+Please read this section carefully, especially if you use websites where you
+are signed in.
+
+LOCAL USE
+  BrowserAI's dashboard server is configured to listen on this computer only.
+  Its normal address begins with 127.0.0.1. Do not change this setting or try
+  to make the dashboard available to other computers or the public internet
+  unless a qualified person has reviewed the security implications.
+
+INVITATION CODE
+  The invitation code is stored in the .env file and appears in the black
+  command window when BrowserAI starts. It stays the same until you change it
+  in .env. Treat it as private and choose a code that you do not use elsewhere.
+
+ADMIN PASSWORD
+  The password you create at startup is required to submit browser tasks.
+  Keep it private. The initial password-creation prompt hides what you type.
+  The later browser prompt used when submitting a task may show the characters
+  you type, so do not enter it where someone can easily see your screen.
+
+BROWSER PROFILE AND SIGN-INS
+  BrowserAI creates an "agent_data" folder beside the project files. It uses
+  a separate Edge browser profile stored inside that folder. The profile can
+  retain cookies and signed-in sessions, as well as browsing data. Anyone who
+  gets access to that folder may be able to access private browser data.
+  Do not send the agent_data folder to your friend or upload it publicly.
+
+DOWNLOADS AND SCREENSHOTS
+  BrowserAI stores its downloads and screenshots inside the agent_data
+  folder. Check those files before sharing your project or computer with
+  someone else. They may contain personal information.
+
+AUTOMATED ACTIONS
+  BrowserAI can make mistakes. It may misunderstand a request, read a page
+  incorrectly, or perform an unintended navigation action. Approved-site
+  restrictions and command checks reduce some risks, but they do not make
+  the system completely safe or error-proof. Always supervise it.
+
+  Do not use BrowserAI for payments, purchases, banking, trading, medical
+  accounts, changing passwords, deleting important information, or other
+  sensitive actions. Do not assume that a confirmation prompt guarantees
+  every individual action on a website will be shown to you first.
+
+ACCOUNT SECURITY
+  If you use a website that contains private information, remember that the
+  browser profile can preserve your sign-in. Do not leave BrowserAI running
+  unattended on a shared computer. Sign out of websites when appropriate and
+  protect your Windows user account with its own password.
+
+
+9. STOPPING BROWSERAI
 ---------------------
-app.py                    Flask server and dashboard API
-browser_agent.py          Browser automation and AI planning code
-index.html                BrowserAI dashboard
-requirements.txt          Required Python packages
-Foraibackendtasker.bat    Windows setup and launcher
-Manual.txt                These instructions
 
-You do not need to edit the Python or HTML files for a normal local setup.
-The launcher creates a Python virtual environment and installs the packages.
+When you are finished:
 
-FIRST-TIME REQUIREMENTS
-----------------------
-1. Windows 10 or Windows 11.
-2. Python 3.10 or newer: https://www.python.org/downloads/
-   During installation, enable "Add Python to PATH".
-3. Microsoft Edge installed and up to date.
-4. Ollama for Windows: https://ollama.com/download/windows
+1. Return to the black command window that opened when you started BrowserAI.
+2. Press Ctrl + C on your keyboard.
+3. If Windows asks you to confirm stopping the process, follow the prompt.
+4. You can then close the command window and the dashboard browser tab.
 
-START BROWSERAI
----------------
-1. Extract the entire ZIP file into a normal folder, for example:
-   C:\BrowserAI
-   Do not run the launcher from inside the ZIP file.
-2. Install Python, Microsoft Edge, and Ollama using the links above.
-3. Start Ollama. It normally runs in the background after installation.
-4. Double-click Foraibackendtasker.bat.
-5. On the first run, the launcher creates a Python virtual environment and
-   installs the required packages. This may take several minutes.
-6. The launcher checks for the default Ollama model, phi3. If it is missing,
-   the launcher downloads it. The download can take some time.
-7. When prompted, create an admin password. Password input is hidden while
-   you type. Keep this password private; it is required to run browser tasks.
-8. The launcher displays a one-time invitation code in the command window.
-   Enter that code when the dashboard asks for it.
-9. Open the dashboard at:
-   http://127.0.0.1:5000
-10. Keep the black command window open while using BrowserAI.
+Closing the command window also stops the local dashboard and any active
+browser task. It is better to stop BrowserAI this way rather than force-close
+it while it is in the middle of a task.
 
-IMPORTANT SECURITY AND PRIVACY NOTES
-------------------------------------
-- BrowserAI is configured to bind to 127.0.0.1, which makes the dashboard
-  available from this computer only. Do not change the bind address or expose
-  the service to your network or the public internet without a separate
-  security review.
-- A new invitation code is generated each time the launcher starts. It is
-  printed in the command window. Treat it as private and do not post or share
-  it publicly. If you restart BrowserAI, use the new code. If the dashboard
-  still remembers the previous code in the current browser tab, open a new tab.
-- The admin password is entered through a hidden PowerShell prompt. It is
-  passed to the local Python process so the application can verify it. Do not
-  share your password.
-- BrowserAI uses a separate, persistent Microsoft Edge profile in the
-  agent_data folder. That folder may contain cookies, signed-in website
-  sessions, browsing data, or other private information. Do not send or share
-  the agent_data folder with anyone.
-- Browser automation can make changes on websites. Start with harmless tasks,
-  review the task confirmation, and supervise the browser while it works.
-  Do not use it for payments, purchases, account changes, or other sensitive
-  actions unless you understand and approve every step.
-- Built-in approved-site and command checks reduce risk, but they do not make
-  AI-generated browser actions completely safe or error-proof.
-- The invitation code is an additional local access check, not a replacement
-  for keeping the computer, password, and files secure.
+To start it again later, double-click Foraibackendtasker.bat again. Use the
+invitation code shown in the black window. If BROWSERAI_ADMIN_PASSWORD is left
+blank in .env, the launcher asks you for the admin password at startup. If you
+set a password in .env, BrowserAI uses that value instead.
 
-USING THE DASHBOARD
--------------------
-1. Open http://127.0.0.1:5000 in Microsoft Edge or another browser on the
-   same computer.
-2. Enter the invitation code shown by the launcher when requested.
-3. When you submit a browser task, enter the admin password when prompted.
-4. Review the task confirmation and watch the browser as the task runs.
-5. Only one browser task can run at a time.
 
-STOPPING BROWSERAI
-------------------
-Return to the command window and press Ctrl+C. Closing the command window
-also stops the dashboard and any active browser task.
+10. FILES AND FOLDERS THAT MAY APPEAR
+-------------------------------------
 
-OPTIONAL CONFIGURATION
-----------------------
-- The default Ollama model is phi3. To use another model, set the environment
-  variable BROWSER_AGENT_MODEL before starting the launcher, and make sure
-  that model is already available in Ollama. The launcher will download the
-  selected model if it is not present.
-- To use a different local port, set the PORT environment variable before
-  starting the launcher. The default is 5000.
-- To provide an admin password through the environment instead of the hidden
-  prompt, set BROWSERAI_ADMIN_PASSWORD before starting the launcher. Keep it
-  private and avoid storing it in shared scripts or files.
+When BrowserAI runs, it may create these folders beside the project files:
 
-TROUBLESHOOTING
----------------
-"Python was not found": Install Python 3.10 or newer and enable
-Add Python to PATH. Close and reopen the command window, then run the launcher.
+  .venv        A private Python environment containing the packages BrowserAI
+               needs. Do not delete it while BrowserAI is running. If you
+               delete it, the launcher will need to create it again.
 
-"Ollama was not found": Install Ollama from the link above, then close and
-reopen the command window and run the launcher again.
+  agent_data   Browser profile, task information, memory data, screenshots,
+               and downloaded files. Treat this folder as private.
 
-"Ollama is not responding": Start the Ollama application and run the launcher
-again. The launcher checks that Ollama can respond before checking the model.
+  logs         Log files that can help diagnose problems. Logs may contain
+               technical details about tasks and should be checked before
+               sharing them.
 
-"Model download failed": Make sure Ollama is running and that the computer
-has an internet connection. Run the launcher again after the download issue
-is resolved.
+These folders are created automatically. You do not need to open or edit them
+for normal use. Keep private data folders out of any ZIP you send to someone
+else unless you have checked their contents and intentionally want to share
+that data.
 
-"Microsoft Edge failed to start": Update Microsoft Edge and run the launcher
-again. Check that security software is not blocking the browser automation.
 
-"Invitation code was rejected": Use the latest code printed by the current
-launcher window. If you restarted BrowserAI, open a new dashboard tab and
-enter the newly generated code.
+11. TROUBLESHOOTING - IF SOMETHING GOES WRONG
+--------------------------------------------
 
-"Admin password was not accepted": Check that you entered the same password
-created at startup. Restart the launcher if you need to create a new password.
+THE BLACK WINDOW FLASHES AND CLOSES
+  Start the launcher again by double-clicking it. If the window closes too
+  quickly to read the message, open the folder, click the address bar, type
+  cmd, and press Enter. In the command window that opens, type:
 
-"Port is already in use": Close the other program using the port, or set PORT
-to an unused port before starting the launcher. Use the matching port in the
-browser address, for example http://127.0.0.1:5001.
+    Foraibackendtasker.bat
 
-The dashboard and browser agent run in one local process. Closing that process
-stops the dashboard and any active task.
+  Then press Enter. The error message should remain visible. You can copy
+  the message and send it to the person helping you. Do not share passwords,
+  invitation codes, or private files.
+
+"PYTHON WAS NOT FOUND" OR PYTHON IS NOT RECOGNIZED
+  Install Python 3.10 or newer from https://www.python.org/downloads/.
+  During installation, enable "Add Python to PATH" and the Python Launcher
+  if offered. After installation, close and reopen the command window and
+  try the launcher again.
+
+"OLLAMA WAS NOT FOUND"
+  Install Ollama for Windows from https://ollama.com/download/windows.
+  Start the Ollama application, then run the BrowserAI launcher again.
+
+"OLLAMA DID NOT RESPOND" OR THE AGENT IS NOT READY
+  Make sure Ollama is installed and running. Wait a short time after opening
+  Ollama, then run the launcher again. If it still fails, restart Windows and
+  try once more.
+
+"MODEL NOT FOUND" OR THE MODEL DOWNLOAD FAILS
+  The default model is phi3. The launcher downloads it if it is missing. Make
+  sure you have an internet connection and enough free disk space. Leave the
+  command window open while the download runs. If it fails, try the launcher
+  again when your connection is working.
+
+"PIP INSTALLATION FAILED" OR A PACKAGE COULD NOT BE INSTALLED
+  Check your internet connection and make sure Python installed correctly.
+  Close the launcher, restart it, and try again. If the same error appears,
+  copy the error text for technical support.
+
+THE DASHBOARD ADDRESS DOES NOT OPEN
+  Check that the black command window is still open and that it says BrowserAI
+  is ready. Check the address carefully:
+
+    http://127.0.0.1:5000
+
+  If you changed the port, use the port shown in the command window instead.
+
+"INVITATION CODE WAS REJECTED"
+  Use the code shown in the currently open launcher window. If you restarted
+  BrowserAI, the code changed. Refresh the dashboard page and enter the new
+  code. Do not use a code from an earlier session.
+
+"ADMIN PASSWORD WAS NOT ACCEPTED"
+  Check that you are entering the same password you created when starting
+  BrowserAI. Remember that the dashboard asks for the password when you send
+  a task. If you cannot remember it, stop BrowserAI and restart the launcher
+  so you can create a new password.
+
+"ANOTHER BROWSER TASK IS ALREADY RUNNING"
+  Wait for the current task to finish. BrowserAI only runs one browser task
+  at a time. If the task appears stuck, allow it some time, then stop and
+  restart BrowserAI using the command window.
+
+"MICROSOFT EDGE FAILED TO START"
+  Make sure Edge is installed and up to date. Close any stuck automated Edge
+  windows and try again. Restarting the computer may help if Edge is still
+  running in the background.
+
+"PORT IS ALREADY IN USE"
+  Another program may already be using port 5000. Close the other program if
+  you know what it is, or ask someone technical to help choose another port.
+  If the port is changed, the dashboard address must use that same port.
+
+A TASK STARTS BUT DOES NOT DO WHAT I ASKED
+  Try a shorter, clearer request. Name one website and one goal. Check that
+  the website is on the approved list. Website layouts change, and some pages
+  require sign-in or contain elements the agent cannot operate. Review the
+  result rather than assuming the task succeeded.
+
+
+12. EASY SETTINGS - THE .ENV FILE
+---------------------------------
+
+BrowserAI includes a file named .env in the same folder as
+Foraibackendtasker.bat. This is a simple text file where you can change
+settings without editing Python code or the batch launcher.
+
+HOW TO OPEN IT
+  1. Close BrowserAI first. In its black command window, press Ctrl+C.
+  2. Open the main BrowserAI folder. This is the folder containing
+     Foraibackendtasker.bat, app.py, and browser_agent.py.
+  3. Find the file named .env. It may appear as just .env rather than
+     showing a file type.
+  4. Right-click the file and choose Open with, then Notepad.
+  5. Change only the text after the = sign. Do not delete the setting name.
+  6. Choose File > Save, close Notepad, and start BrowserAI again.
+
+EXAMPLE
+  BROWSER_AGENT_MODEL=phi3
+
+  To use a different Ollama model, replace phi3 with the exact model name.
+  The launcher will try to download that model if it is not already installed.
+
+SETTINGS YOU CAN CHANGE
+  BROWSER_AGENT_MODEL
+    Selects the Ollama AI model. The default is phi3.
+
+  PORT
+    Sets the local dashboard port. The default is 5000. Usually leave it alone.
+
+  BROWSERAI_ADMIN_PASSWORD
+    Leave the value blank to be asked to create a password when BrowserAI
+    starts. Alternatively, enter a password after the = sign. If you do this,
+    anyone who can open the .env file can read that password, so protect the
+    file and do not include it in a ZIP you send to someone else.
+
+  BROWSERAI_INVITE_CODES
+    Sets the code needed to enter the dashboard. Change the value after =
+    to a code you choose. Do not use a code that you also use elsewhere.
+
+  BROWSERAI_AGENT_ENABLED
+    Use true to allow browser tasks or false to disable the agent.
+
+  BROWSER_AGENT_HEADLESS
+    Use 0 to show the automation browser window or 1 to hide it.
+
+  BROWSER_AGENT_BROWSER
+    Choose which browser the agent controls:
+      auto  - try Google Chrome first, then Microsoft Edge (recommended)
+      chrome - use Google Chrome only
+      edge   - use Microsoft Edge only
+    This setting controls the automated browser, not the browser used to view
+    the dashboard. Selenium Manager attempts to locate a matching driver.
+
+  BROWSER_AGENT_SETUP
+    Use 0 for normal use. The special value 1 enables browser setup mode.
+    Most users should leave this set to 0.
+
+IMPORTANT NOTES
+  - Save the .env file and restart BrowserAI after every change.
+  - Do not put quotation marks around values.
+  - Do not add spaces around the = sign.
+  - BrowserAI supports current, maintained Chrome and Edge releases; it cannot
+    promise compatibility with every historical browser version.
+  - Keep the .env file in the same folder as app.py.
+  - Do not share a .env file containing your own password or private codes.
+  - If Windows or Notepad makes the filename difficult to see, choose
+    File > Save As and make sure the filename is exactly .env, not .env.txt.
+
+The file .env.example is a spare template. The launcher uses .env, not
+.env.example. If you accidentally delete .env, you can copy .env.example
+and rename the copy to .env, then edit the values before starting BrowserAI.
+
+
+13. OPTIONAL TECHNICAL NOTE - ENVIRONMENT VARIABLES
+---------------------------------------------------
+
+An environment variable is simply a setting that a program reads while it
+runs. The .env file is a convenient way for BrowserAI to load those settings.
+Most users only need to edit the .env file as described above. You do not
+need to use Windows' Environment Variables control panel.
+
+--------------------------------------------------------
+
+You may see the phrase "environment variable" in technical instructions.
+This is simply a named setting that Windows makes available to a program
+when it starts. Think of it like a preference or instruction that tells
+BrowserAI how to run. It is not a folder, a label on the screen, or a file
+you need to create for normal use.
+
+IMPORTANT: Most people should not change any of these settings. The supplied
+Foraibackendtasker.bat launcher sets the usual values for you. This section
+is here so you can understand the names if they appear in an error message
+or if someone helping you asks about them.
+
+The settings used by this project are:
+
+  BROWSER_AGENT_MODEL
+    What it does: Selects which Ollama AI model BrowserAI asks to do the
+    planning. The normal default is "phi3". The launcher checks for this
+    model and attempts to download it if it is not installed. A different
+    model must be supported by Ollama and already be available to it or be
+    downloadable by Ollama.
+
+  PORT
+    What it does: Selects the numbered communication port used by the local
+    dashboard. The normal default is 5000. The usual dashboard address is
+    http://127.0.0.1:5000. If an advanced user changes the port, they must
+    use the new number in the dashboard address too.
+
+  BROWSERAI_ADMIN_PASSWORD
+    What it does: Provides the dashboard's admin password when BrowserAI
+    starts. Normally, the launcher asks you to create this password with
+    hidden typing. You do not need to set this variable yourself. Never save
+    a real password inside a batch file that you plan to share.
+
+  BROWSERAI_INVITE_CODES
+    What it does: Sets the invitation code required by the dashboard. The
+    supplied launcher creates a fresh random code each time it starts and
+    displays it in the command window. Use the code from the current session.
+    It is normal for the code to change after restarting BrowserAI. Do not
+    share screenshots that reveal the code.
+
+  BROWSERAI_AGENT_ENABLED
+    What it does: Turns browser automation on or off in the server. The
+    supplied launcher turns it on. Most users should leave this alone.
+
+  BROWSER_AGENT_HEADLESS
+    What it does: Controls whether the automated Edge browser is shown on
+    screen. The supplied launcher sets this to 0, which means Edge is visible
+    while it works. A value of 1 means the browser runs without showing its
+    window. Visible mode is easier for a beginner to supervise.
+
+  BROWSER_AGENT_SETUP
+    What it does: Enables a special browser setup mode when set to 1. This is
+    an advanced troubleshooting/configuration option, not part of normal
+    everyday use. Leave it unchanged unless the project maintainer tells you
+    to use it.
+
+DO I NEED TO CHANGE THESE SETTINGS?
+  No. The included .env file already contains working defaults. For normal
+  use, double-click Foraibackendtasker.bat and follow the prompts. If you want
+  to customize BrowserAI, use the beginner-friendly instructions in section 12.
+
+A NOTE ABOUT SECURITY
+  The .env file is plain text, not a secure password vault. Anyone who can
+  read the project folder can read its contents. Do not include your personal
+  .env file in a ZIP you send to other people if it contains your password or
+  a private invitation code. Do not show these values in screenshots or
+  shared documents.
+
+
+13. GETTING HELP
+----------------
+
+If BrowserAI does not start, the most useful information is the exact error
+message shown in the black command window. Take a screenshot or copy the
+message, but hide any password, invitation code, personal information, or
+private website details before sharing it.
+
+When asking for help, explain:
+  - Which step you were on.
+  - What you expected to happen.
+  - What happened instead.
+  - The exact error message, with private information removed.
+
+Do not send your admin password, invitation code, agent_data folder, browser
+profile, or private downloads to someone who is helping troubleshoot.
+
+
+FINAL REMINDER
+--------------
+
+For everyday use, you only need to:
+
+  1. Start Ollama.
+  2. Double-click Foraibackendtasker.bat.
+  3. Create or enter your admin password when asked.
+  4. Copy the invitation code shown in the black window. You can change it
+     in the .env file before starting BrowserAI.
+  5. Open http://127.0.0.1:5000 and enter the invitation code.
+  6. Describe a simple browser task, confirm it, and supervise the result.
+  7. Press Ctrl + C in the black window when you are finished.
+
+You do not need to write code or edit the project files for these normal steps.
+Enjoy using BrowserAI, and remember to protect your passwords and private data.

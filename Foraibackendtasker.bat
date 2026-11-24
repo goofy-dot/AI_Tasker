@@ -50,11 +50,13 @@ if errorlevel 1 (
 
 rem Read the settings that the launcher itself needs from the .env file.
 rem app.py and browser_agent.py also load the same file directly.
-for /f "tokens=1,* delims==" %%A in ('python -c "from dotenv import load_dotenv; import os; load_dotenv(); print('BROWSER_AGENT_MODEL='+os.getenv('BROWSER_AGENT_MODEL','phi3')); print('PORT='+os.getenv('PORT','5000')); print('BROWSERAI_INVITE_CODES='+os.getenv('BROWSERAI_INVITE_CODES',''))"') do set "%%A=%%B"
+for /f "tokens=1,* delims==" %%A in ('python -c "from dotenv import load_dotenv; import os; load_dotenv(); print('BROWSER_AGENT_MODEL='+os.getenv('BROWSER_AGENT_MODEL','phi3')); print('BROWSER_AGENT_BROWSER='+os.getenv('BROWSER_AGENT_BROWSER','auto')); print('PORT='+os.getenv('PORT','5000')); print('BROWSERAI_INVITE_CODES='+os.getenv('BROWSERAI_INVITE_CODES',''))"') do set "%%A=%%B"
 if not defined BROWSER_AGENT_MODEL set "BROWSER_AGENT_MODEL=phi3"
+if not defined BROWSER_AGENT_BROWSER set "BROWSER_AGENT_BROWSER=auto"
 if not defined PORT set "PORT=5000"
 
 echo.
+echo Automation browser preference: %BROWSER_AGENT_BROWSER%
 echo Checking for the AI model %BROWSER_AGENT_MODEL% ...
 ollama list | findstr /i /c:"%BROWSER_AGENT_MODEL%" >nul
 if errorlevel 1 (
